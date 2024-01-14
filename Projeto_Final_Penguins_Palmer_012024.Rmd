@@ -1,0 +1,176 @@
+---
+title: '**Estudo de Caso do Curso Google Data Analytics**'
+author: "Jonas Alexandrino"
+date: "2024-01-11"
+output: html_document
+---
+
+### **Cenário**
+
+Você é um analista de dados júnior que trabalha para um consultor de inteligência de negócios. Considerando que está desempenhando sua função há seis meses, seu chefe sente que você está pronto para ter mais responsabilidades. Ele solicitou que você lidere um projeto para um novo cliente – o trabalho envolverá vários aspectos, desde a definição da tarefa de negócios até a apresentação de suas recomendações baseadas em dados. O cliente é o instituto de pesquisa Palmer Station LTER e à US LTER Network, que possui uma estação de pesquisa dos Estados Unidos localizada na Antártica. O objetivo do projeto Palmer LTER é estudar o ecossistema marinho pelágico a oeste da Península Antártica, incluindo habitats de gelo marinho, oceanografia regional e locais de nidificação terrestre de predadores de aves marinhas.
+
+![](https://d3c33hcgiwev3.cloudfront.net/imageAssetProxy.v1/Nxf_nX4JSJyX_51-CQic-A_9153cb6c7f9e4f6486ca5b392425e8f1_DA_C1M1L2R1_A.png?expiry=1705363200000&hmac=GG2neYQDpfCJPCejz66bXyfNzPSI5-lw_eInlLxH3yc)
+
+  
+### **Perguntas de Negócio**
+
+Em primeiro lugar, o analista de dados se reuniu com às partes interessadas para definir como o projeto seria um resultado de êxito.
+
+Os Pesquisadores do Palmer Station solicitam que você analise os dados coletados de 2007 à 2009, que contém medições de tamanho para três espécies de pinguim (Adelie, Chinstrap e Gentoo) que vivem no arquipélago de Palmer, na Antártica. Eles desejam uma comparação por espécie, da massa corporal, tamanho das nadadeiras e sexo.
+
+* Qual a relação por espécie entre a massa corporal e o comprimento da nadadeira?
+* Qual a maior e menor espécie de pinguim?
+* Qual a relação por sexo entre a massa corporal e o comprimento da nadadeira?
+
+![](https://d3c33hcgiwev3.cloudfront.net/imageAssetProxy.v1/YWrURSqZQWKq1EUqmXFiow_a86286a5a4f74e0eabf0e46e7e03836b_DA_C1M1L2R1_B.png?expiry=1705363200000&hmac=CXr0Hq5hi1xmgA13w4eBEs92R6CKxYXz4qgOQ1PoI6k)
+
+### **Preparar os Dados**
+
+Tudo começou com uma preparação sólida.O Analista de dados criou um cronograma de sete dias e como queria transmitir o progresso às partes interessadas. O analista identificou quais dados precisava para atingir o resultado bem-sucedido que identificaram na etapa anterior. Neste caso os dados foram coletados e disponibilizados pela Dra. Kristen Gorman e pela Estação Palmer, Antarctica LTER, membro da Rede de Pesquisa Ecológica. O link de acesso: <https://allisonhorst.github.io/palmerpenguins/>. Os dados também estão disponíveis no Pacote R palmerpenguins, que contém dois conjuntos de dados. Para este estudo foi utilizado somente o 'penguins' que é uma versão simplificada dos dados brutos. 
+
+Para responder as perguntas de negócios, foram selecionadas as variáveis:
+
+* species: um fator que denota a espécie de pinguim (Adélie, Chinstrap ou Gentoo)
+* body_mass_g: um inteiro que denota o peso do corpo de um pinguim (gramas)
+* flipper_length_mm: um inteiro que denota o comprimento de uma nadadeira de pinguim (milímetros)
+* sex: um fator que denota o sexo de um pinguim (macho, fêmea) com base em dados moleculares
+
+
+![](https://d3c33hcgiwev3.cloudfront.net/imageAssetProxy.v1/nvjkJ-_DQym45CfvwwMpZg_ca752b42a2494e299da71b7025254106_DA_C1M1L2R1_C.png?expiry=1705363200000&hmac=m2qjuYo2nIbSy9wGjhNc3p3vQgwBKLtYedvOPj88PK0)
+
+### **Processar os Dados**
+
+Carregando os Pacotes R
+
+```{r message=FALSE, warning=FALSE}
+library("tidyverse")
+library("palmerpenguins")
+library("skimr")
+library("janitor")
+library("here")
+library("dplyr")
+```
+
+Resumo do conjunto de dados
+
+*  visualização dos nomes das colunas
+*  tipos de dados contidos no conjunto de dados
+
+```{r message=FALSE}
+head(penguins)
+```
+
+resumo estatístico de cada coluna do conjunto de dados.
+
+* Existem 3 espécies de pinguins: Adelie, Chinstrap e Gentoo
+* As medidas do bico variam de 32,10 mm a 59,60 mm
+* As medidas de profundidade do bico variam de 13,10 a 21,50 mm
+* O comprimento da nadadeira varia de 172,0 mm a 231,0 mm.
+* O peso corporal varia de 2700 g a 6300 g.
+* Existem 165 fêmeas, 168 machos e 11 valores ausentes para sexo
+```{r}
+summary(penguins)
+```
+
+Garantindo a consistência dos nomes das colunas
+
+* A função clean names no pacote Janitor vai se certificar automaticamente que os nomes das colunas são únicos e consistentes. Isso garante que só há caracteres, números, e underscores nos nomes
+```{r}
+clean_names(penguins)
+```
+
+Garantindo que não existe valores duplicados
+```{r}
+distinct(penguins)
+```
+
+
+![](https://d3c33hcgiwev3.cloudfront.net/imageAssetProxy.v1/4PjksQFESZK45LEBRCmScw_877ecbe661d24dfbb3a768cf90c742a7_DA_C1M1L2R1_D.png?expiry=1705363200000&hmac=ytBGdAEtOOnsmiGt45U7yhHOuZoGfjiCDDewuw2zG6U)
+
+### **Analisar** 
+
+Relação entre o body_mass_g (massa corporal) e flipper_length_mm (Comprimento da nadadeira)
+
+* O gráfico mostra uma relação positiva entre as duas variáveis. Em outras palavras, quanto maior o pinguim, mais longa é a nadadeira.
+* Os Gentoo são os maiores, entre as três espécies.
+* Adelie são os menores, entre as três espécies.
+* A legenda mostra um círculo para a espécie Adelie, um triângulo para Chinstraps e um quadrado para Gentoo.
+
+```{r massa vs comprimento, message=FALSE,warning=FALSE }
+ggplot(data = penguins) +geom_point(mapping = aes(x = flipper_length_mm, y = body_mass_g,shape = species, color = species))+
+  labs(title="Palmer Penguins: Body Mass vs. Flipper Length", subtitle = "Sample of Three Penguins Species",
+       caption ="Data collected by Dr.Krinten Gorman" )
+```
+
+* Outra forma de visualização, destacando o tamanho das formas por espécie 
+```{r tamanho, message=FALSE, warning=FALSE}
+ggplot(data = penguins) +geom_point(mapping = aes(x = flipper_length_mm, y = body_mass_g,shape = species, color = species, size = species))+
+  labs(title="Palmer Penguins: Body Mass vs. Flipper Length",
+       caption ="Data collected by Dr.Krinten Gorman" )
+```
+
+* Os pinguins femininos têm uma tendência de terem menor massa corporal e comprimento de nadadeira em comparação aos masculinos.
+```{r sexo, message=FALSE, warning=FALSE}
+ggplot(data = penguins) +
+  geom_point(mapping = aes(x = flipper_length_mm, y = body_mass_g,color=species))+
+  facet_grid(~sex)+ labs(title="Palmer Penguins: Body Mass vs. Flipper Length",subtitle = "sex of Three Penguins Species",
+       caption ="Data collected by Dr.Krinten Gorman" )
+```
+
+
+* O Gráfico mostra os comprimentos das asas de três espécies diferentes de pinguins (Adelie, Chinstrap e Gentoo).
+* A frequência dos comprimentos das asas é representada no eixo Y, enquanto o comprimento em milímetros está no eixo X.
+* Os pinguins Adelie têm comprimentos de asa principalmente entre 180 mm e pouco mais de 200 mm.
+* Os pinguins Chinstrap têm uma distribuição semelhante Adelie, mas com menos variação nos comprimentos das asas
+* Os pinguins Gentoo têm os maiores comprimentos de asa, variando principalmente entre pouco mais de 200 mm a cerca de 220 mm.
+
+```{r histogram flipper lengths , message=FALSE, warning=FALSE}
+ggplot(data = penguins) +
+  geom_histogram(mapping = aes(x = flipper_length_mm, fill = species))+
+  labs(title = "Penguin flipper lengths",
+       x = "Flipper length (mm)",
+       y = "Frequency")
+```
+
+* O Gráfico mostra a distribuição da massa corporal de três espécies de pinguins (Adelie, Chinstrap e Gentoo).
+* A espécie Adelie tem uma massa corporal que varia principalmente entre 2500g e 4500g. A
+* Os pinguins Chinstrap têm uma distribuição semelhante, mas com menos variação nos comprimentos das asas.
+* A espécie Gentoo tem uma massa corporal mais elevada, variando principalmente entre 4500g e 6500g.
+* O eixo Y representa a frequência dos dados coletados para cada intervalo específico da massa corporal.
+* O eixo X representa a massa corporal em gramas.
+
+```{r histogram body_mass_g , message=FALSE, warning=FALSE}
+ggplot(data = penguins) +
+  geom_histogram(mapping = aes(x = body_mass_g, fill = species))+
+  labs(title = "Penguin body_mass_g",
+       x = "body mass (g)",
+       y = "Frequency")
+```
+
+
+
+
+![](https://d3c33hcgiwev3.cloudfront.net/imageAssetProxy.v1/LnG2GdNaSGKxthnTWnhiyw_0e857a82d61b414d8333ea02f226c174_DA_C1M1L2R1_E.png?expiry=1705363200000&hmac=YGGIaYcymIoCNdFTD82MOvH8_svCa0DATPVk8NpmcNM)
+
+
+### **Compartilhar**
+
+Os resultados foram compartilhados de duas formas às partes interessadas. A primeira foi em uma reunião, utilizando powerpoit, contendo as visualizações das descobertas e principais insights da análise. A segunda forma foi compartilhando um relatório escrito, dando oportunidade de acompanharem as seis etapas do processo de análise de dados: perguntar, preparar, processar, analisar, compartilhar e agir.
+
+
+![](https://d3c33hcgiwev3.cloudfront.net/imageAssetProxy.v1/_lmptPOEQfCZqbTzhEHwTw_3a72cd9b1c664666b6d9168b81037439_DA_C1M1L2R1_F.png?expiry=1705363200000&hmac=io28LoUvvi7t_vN0y-NLgZqtQMGCAjIStYD0tHZhhxg)
+
+### **Agir** 
+
+Conclusão das análises
+
+
+* Existe uma relação positiva entre as variáveis bill_length_mm (comprimento do bico) e body_mass_g (massa do corpom). Em outras palavras,  quanto maior o pinguim, mais longa é a nadadeira.
+*Os pinguins femininos têm uma tendência de terem menor massa corporal e comprimento de nadadeira em comparação aos masculinos.
+* Os Gentoos são os maiores pinguins, entre as três espécies.
+* Os Adelie são os menores pinguins, entre as três espécies.
+
+
+
+
+
